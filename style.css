@@ -1,140 +1,30 @@
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f8f8f8;
-  color: #333;
+body {
+  background: #121212;
+  color: #fff;
+  font-family: sans-serif;
   text-align: center;
+  padding: 2rem;
 }
 
-h1 {
-  font-size: 2rem;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  color: #222;
-}
-
-video {
+#reader {
   width: 100%;
   max-width: 400px;
-  height: auto;
+  margin: auto;
+  border: 2px solid #00bcd4;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  background: #000;
-}
-
-canvas {
-  display: none;
-}
-
-#counters {
-  margin-top: 1rem;
-  font-size: 1rem;
-  color: #555;
-}
-
-#history {
-  margin: 1rem auto;
-  padding: 0;
-  list-style: none;
-  max-height: 200px;
-  overflow-y: auto;
-  width: 90%;
-}
-
-#history li {
-  margin: 0.5rem 0;
-  font-size: 1rem;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  background-color: #fff;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-
-#scanContainer {
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-#scanButton, #stopButton {
-  background: #444;
-  color: white;
-  font-size: 1rem;
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-#scanButton:hover {
-  background: #2e7d32;
-}
-
-#stopButton {
-  background: #b71c1c;
-}
-
-#stopButton:hover {
-  background: #c62828;
-}
-
-#popup {
-  display: none;
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  border: 1px solid #ccc;
   padding: 1rem;
-  z-index: 2000;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-  border-radius: 12px;
-  width: 90%;
-  max-width: 300px;
+  background: #1e1e1e;
 }
 
-#popup p {
-  margin-bottom: 1rem;
-  font-size: 1rem;
-  color: #333;
+#result {
+  margin-top: 1rem;
+  font-size: 1.2rem;
 }
 
-#popup button {
-  margin: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background: #eee;
-  transition: background 0.3s ease;
+.valide {
+  color: #00e676;
 }
 
-#popup button:hover {
-  background: #ddd;
-}
-
-/* 📱 Mobile responsive */
-@media screen and (max-width: 600px) {
-  h1 {
-    font-size: 1.5rem;
-  }
-
-  #scanButton, #stopButton {
-    font-size: 0.9rem;
-    padding: 0.6rem 1rem;
-  }
-
-  #popup p, #popup button {
-    font-size: 0.9rem;
-  }
-
-  #history li {
-    font-size: 0.9rem;
-  }
+.fraude {
+  color: #ff1744;
 }
