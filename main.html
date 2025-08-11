@@ -2,36 +2,59 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Caméra Test</title>
+  <title>Scanner QR Code</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     body {
-      background: #222;
+      background: #121212;
       color: #fff;
       font-family: sans-serif;
       text-align: center;
-      margin: 0;
       padding: 2rem;
     }
-    video {
+    #reader {
       width: 100%;
       max-width: 400px;
-      border: 2px solid #fff;
+      margin: auto;
+      border: 2px solid #00bcd4;
       border-radius: 8px;
+      padding: 1rem;
+      background: #1e1e1e;
+    }
+    #result {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      color: #00e676;
     }
   </style>
 </head>
 <body>
-  <h1>📷 Caméra Test</h1>
-  <video id="video" autoplay playsinline muted></video>
+  <h1>📲 Scanner QR Code</h1>
+  <div id="reader"></div>
+  <div id="result">🔍 En attente de scan...</div>
+
   <script>
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-      .then(stream => {
-        document.getElementById("video").srcObject = stream;
-      })
-      .catch(error => {
-        alert("Erreur caméra : " + error.message);
-      });
+    const resultDiv = document.getElementById('result');
+
+    function onScanSuccess(decodedText, decodedResult) {
+      resultDiv.innerText = "✅ QR Code détecté : " + decodedText;
+    }
+
+    function onScanFailure(error) {
+      // Erreurs ignorées pour ne pas spammer
+    }
+
+    const html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+      { facingMode: "environment" },
+      {
+        fps: 10,
+        qrbox: { width: 250, height: 250 }
+      },
+      onScanSuccess,
+      onScanFailure
+    );
   </script>
 </body>
 </html>
