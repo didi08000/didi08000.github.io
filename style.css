@@ -1,1 +1,119 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f8f8f8;
+  color: #333;
+  text-align: center;
+}
 
+h1 {
+  font-size: 2.5vw;
+  margin-top: 2%;
+  margin-bottom: 2%;
+  color: #222;
+}
+
+video {
+  width: 80%;
+  max-width: 400px;
+  height: auto;
+  border-radius: 1%;
+  box-shadow: 0 0.5vw 1vw rgba(0,0,0,0.1);
+  background: #000;
+}
+
+canvas {
+  display: none;
+}
+
+#counters {
+  margin-top: 2%;
+  font-size: 1.2vw;
+  color: #555;
+}
+
+#history {
+  margin: 2% auto;
+  padding: 0;
+  list-style: none;
+  max-height: 20%;
+  overflow-y: auto;
+  width: 80%;
+}
+
+#history li {
+  margin: 1% 0;
+  font-size: 1vw;
+  padding: 1% 2%;
+  border-radius: 0.5vw;
+  background-color: #fff;
+  box-shadow: 0 0.2vw 0.5vw rgba(0,0,0,0.05);
+}
+
+#scanContainer {
+  margin-top: 3%;
+  display: flex;
+  justify-content: center;
+  gap: 5%;
+}
+
+#scanButton, #stopButton {
+  background: #444;
+  color: white;
+  font-size: 1.5vw;
+  padding: 1.5% 3%;
+  border: none;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#scanButton:hover {
+  background: #2e7d32;
+}
+
+#stopButton {
+  background: #b71c1c;
+}
+
+#stopButton:hover {
+  background: #c62828;
+}
+
+#popup {
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: 0.1vw solid #ccc;
+  padding: 2%;
+  z-index: 2000;
+  box-shadow: 0 0.5vw 1vw rgba(0,0,0,0.2);
+  border-radius: 1vw;
+  width: 80%;
+  max-width: 300px;
+}
+
+#popup p {
+  margin-bottom: 2%;
+  font-size: 1vw;
+  color: #333;
+}
+
+#popup button {
+  margin: 1%;
+  padding: 1% 2%;
+  font-size: 1vw;
+  border: none;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  background: #eee;
+  transition: background 0.3s ease;
+}
+
+#popup button:hover {
+  background: #ddd;
+}
