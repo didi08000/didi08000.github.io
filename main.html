@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Scanner QR Gala</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f8f8;
+      color: #333;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5vw;
+      margin-top: 2%;
+      margin-bottom: 2%;
+      color: #222;
+    }
+
+    video {
+      width: 80%;
+      max-width: 400px;
+      height: auto;
+      border-radius: 1%;
+      box-shadow: 0 0.5vw 1vw rgba(0,0,0,0.1);
+      background: #000;
+    }
+
+    canvas {
+      display: none;
+    }
+
+    #counters {
+      margin-top: 2%;
+      font-size: 1.2vw;
+      color: #555;
+    }
+
+    #history {
+      margin: 2% auto;
+      padding: 0;
+      list-style: none;
+      max-height: 20%;
+      overflow-y: auto;
+      width: 80%;
+    }
+
+    #history li {
+      margin: 1% 0;
+      font-size: 1vw;
+      padding: 1% 2%;
+      border-radius: 0.5vw;
+      background-color: #fff;
+      box-shadow: 0 0.2vw 0.5vw rgba(0,0,0,0.05);
+    }
+
+    #scanContainer {
+      margin-top: 3%;
+      display: flex;
+      justify-content: center;
+      gap: 5%;
+    }
+
+    #scanButton, #stopButton {
+      background: #444;
+      color: white;
+      font-size: 1.5vw;
+      padding: 1.5% 3%;
+      border: none;
+      border-radius: 0.5vw;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    #scanButton:hover {
+      background: #2e7d32;
+    }
+
+    #stopButton {
+      background: #b71c1c;
+    }
+
+    #stopButton:hover {
+      background: #c62828;
+    }
+
+    #popup {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border: 0.1vw solid #ccc;
+      padding: 2%;
+      z-index: 2000;
+      box-shadow: 0 0.5vw 1vw rgba(0,0,0,0.2);
+      border-radius: 1vw;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    #popup p {
+      margin-bottom: 2%;
+      font-size: 1vw;
+      color: #333;
+    }
+
+    #popup button {
+      margin: 1%;
+      padding: 1% 2%;
+      font-size: 1vw;
+      border: none;
+      border-radius: 0.5vw;
+      cursor: pointer;
+      background: #eee;
+      transition: background 0.3s ease;
+    }
+
+    #popup button:hover {
+      background: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎟️ Scanner QR — Gala</h1>
+  <video id="video" autoplay playsinline muted></video>
+  <canvas id="canvas" width="320" height="240"></canvas>
+
+  <div id="counters">
+    ✅ Passages uniques : <span id="uniqueCount">0</span><br>
+    🔁 Doublons détectés : <span id="duplicateCount">0</span><br>
+    🚨 Fraudes confirmées : <span id="fraudCount">0</span>
+  </div>
+
+  <ul id="history"></ul>
+
+  <div id="scanContainer">
+    <button id="scanButton" onclick="startScan()">SCAN</button>
+    <button id="stopButton" onclick="stopScan()">STOP</button>
+  </div>
+
+  <div id="popup">
+    <p id="popupText"></p>
+    <button onclick="markFraud(false)">Pas une fraude</button>
+    <button onclick="markFraud(true)">Fraude confirmée</button>
+  </div>
+
+  <script>
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const uniqueCountEl = document.getElementById("uniqueCount");
+    const duplicateCountEl = document.getElementById("duplicateCount");
+    const fraudCountEl = document.getElementById("fraudCount");
+    const history = document.getElementById("history");
+    const scanButton = document.getElementById("scanButton");
+    const stopButton = document.getElementById("stopButton");
+    const popup = document.getElementById("popup");
+    const popupText = document.getElementById("popupText");
+
+    let scanned = new Set();
+    let scanTimes = new Map();
+    let uniqueCount = 0;
+    let duplicateCount = 0;
+    let fraudCount = 0;
+    let scanActive = false;
+    let currentQR = "";
+    let lastDetectedQR = "";
+    let lastDetectionTime = 0;
+
+    const errorSound = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+    const successSound = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+      .then(stream => {
+        video.srcObject = stream;
+        video.setAttribute("playsinline", true);
+        video.play();
+      })
+      .catch(err => {
+        alert("🚫 Erreur caméra : " + err);
+      });
+
+    function startScan() {
+      if (scanActive) return;
+      scanActive = true;
+      scanButton.style.display = "none";
+      scanLoop();
+    }
+
+    function stopScan() {
+      scanActive = false;
+      scanButton.style.display = "block";
+    }
+
+    function scanLoop() {
+      if (!scanActive) return;
+
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+        const now = Date.now();
+
+        if (code) {
+          const qr = code.data;
+
+          if (qr === lastDetectedQR && now - lastDetectionTime < 1000) {
+            requestAnimationFrame(scanLoop);
+            return;
+          }
+
+          lastDetectedQR = qr;
+          lastDetectionTime = now;
+          currentQR = qr;
+          const timestamp = new Date(now).toLocaleTimeString();
+
+          if (!scanned.has(qr)) {
+            scanned.add(qr);
+            scanTimes.set(qr, now);
+            uniqueCount++;
+            uniqueCountEl.textContent = uniqueCount;
+
+            const li = document.createElement("li");
+            li.textContent = `${qr} — ${timestamp}`;
+            li.style.color = "green";
+            history.appendChild(li);
+
+            successSound.play();
+            if (navigator.vibrate) navigator.vibrate([100]);
+            scanButton.style.backgroundColor = "#2e7d32";
+            scanButton.textContent = "✅ QR OK — SCAN";
+          } else {
+            duplicateCount++;
+            duplicateCountEl.textContent = duplicateCount;
+
+            errorSound.play();
+            if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
+            scanButton.style.backgroundColor = "#b71c1c";
+            scanButton.textContent = "🔁 Doublon — SCAN";
+
+            const firstScan = scanTimes.get(qr);
+            const delay = Math.floor((now - firstScan) / 1000);
+            const firstStr = new Date(firstScan).toLocaleTimeString();
+            const nowStr = new Date(now).toLocaleTimeString();
+
+            const msg = `🔁 Doublon détecté\n\n🕒 Premier scan : ${firstStr}\n🕓 Heure actuelle : ${nowStr}\n⏱️ Délai : ${delay} sec\n\n⚠️ Confirmer la fraude ?`;
+            showPopup(msg);
+          }
+        }
+
+        requestAnimationFrame(scanLoop);
+      } else {
+        setTimeout(() => requestAnimationFrame(scanLoop), 100);
+      }
+    }
+
+    function showPopup(message) {
+      popupText.innerText = message;
+      popup.style
