@@ -2,35 +2,36 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Scanner QR Gala</title>
+  <title>Caméra Test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <style>
+    body {
+      background: #222;
+      color: #fff;
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 2rem;
+    }
+    video {
+      width: 100%;
+      max-width: 400px;
+      border: 2px solid #fff;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
-  <h1>🎟️ Scanner QR — Gala</h1>
+  <h1>📷 Caméra Test</h1>
   <video id="video" autoplay playsinline muted></video>
-  <canvas id="canvas" width="320" height="240"></canvas>
-
-  <div id="counters">
-    ✅ Passages uniques : <span id="uniqueCount">0</span><br>
-    🔁 Doublons détectés : <span id="duplicateCount">0</span><br>
-    🚨 Fraudes confirmées : <span id="fraudCount">0</span>
-  </div>
-
-  <ul id="history"></ul>
-
-  <div id="scanContainer">
-    <button id="scanButton" onclick="startScan()">SCAN</button>
-    <button id="stopButton" onclick="stopScan()">STOP</button>
-  </div>
-
-  <div id="popup">
-    <p id="popupText"></p>
-    <button onclick="markFraud(false)">Pas une fraude</button>
-    <button onclick="markFraud(true)">Fraude confirmée</button>
-  </div>
-
-  <script src="script.js"></script>
+  <script>
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+      .then(stream => {
+        document.getElementById("video").srcObject = stream;
+      })
+      .catch(error => {
+        alert("Erreur caméra : " + error.message);
+      });
+  </script>
 </body>
 </html>
